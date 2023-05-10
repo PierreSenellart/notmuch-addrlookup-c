@@ -339,6 +339,8 @@ run_queries (notmuch_database_t *db,
                            * free the memory.
                            */
                           addr_key = from = NULL;
+                        } else if(strchr(info->name,'@') && !strchr(name, '@')) {
+                          info->name = name;
                         }
                       info->occurrences[i]++;
 
