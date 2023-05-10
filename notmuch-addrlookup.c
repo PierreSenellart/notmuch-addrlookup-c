@@ -318,6 +318,11 @@ run_queries (notmuch_database_t *db,
                   gchar *name = has_space ? g_match_info_fetch_named (matches, "name") : g_strdup (from);
                   gchar *addr = has_space ? g_match_info_fetch_named (matches, "mail") : g_strdup (from);
                   g_strstrip(name); /* Name should be 'Bob', not 'Bob ' */
+
+                  /* Names that look like address or "address" should be simplified
+                   * to the empty string */
+                  if(!strcmp(name,addr) || (strstr(name,addr)==name+1 && name[0]=='"' && name[strlen(name)-1]=='"'))
+                    name=g_strdup("");
                   gchar *patt = g_strdup_printf ("\\b%s", query_name);
 
                   if (g_regex_match_simple (patt, from, G_REGEX_CASELESS, 0))
@@ -339,7 +344,7 @@ run_queries (notmuch_database_t *db,
                            * free the memory.
                            */
                           addr_key = from = NULL;
-                        } else if(strchr(info->name,'@') && !strchr(name, '@')) {
+                        } else if(!strcmp(info->name,"") || (strchr(info->name,'@') && !strchr(name, '@'))) {
                           info->name = name;
                         }
                       info->occurrences[i]++;
