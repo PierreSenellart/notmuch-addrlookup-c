@@ -319,9 +319,22 @@ run_queries (notmuch_database_t *db,
                   gchar *addr = has_space ? g_match_info_fetch_named (matches, "mail") : g_strdup (from);
                   g_strstrip(name); /* Name should be 'Bob', not 'Bob ' */
 
-                  /* Names that look like address or "address" should be simplified
+                  if(strlen(name)>=2 && name[0]=='"' && name[strlen(name)-1]=='"') {
+                    char *tmp = malloc(strlen(name)-1);
+                    unsigned k=0;
+                    for(unsigned i=1; i<strlen(name)-1; ++i) {
+                      if(name[i]=='\\' && i+1<strlen(name)-1 && name[i+1]=='\"')
+                        continue;
+                      tmp[k++]=name[i];
+                    }
+                    tmp[k]=0;
+                    name=g_strdup(tmp);
+                    free(tmp);
+                  }
+
+                  /* Names that are identifcal to the addresses should be simplified
                    * to the empty string */
-                  if(!strcmp(name,addr) || (strstr(name,addr)==name+1 && name[0]=='"' && name[strlen(name)-1]=='"'))
+                  if(!strcmp(name,addr))
                     name=g_strdup("");
                   gchar *patt = g_strdup_printf ("\\b%s", query_name);
 
