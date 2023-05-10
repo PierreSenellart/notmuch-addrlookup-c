@@ -282,6 +282,8 @@ run_queries (notmuch_database_t *db,
       const gchar **headers = (i == 1) ? headers_pass1 : headers_pass0;
       notmuch_messages_t *messages = NULL;
 
+      notmuch_query_set_sort(queries[0], NOTMUCH_SORT_NEWEST_FIRST);
+
 #if LIBNOTMUCH_CHECK_VERSION(5, 0, 0)
       if (notmuch_query_search_messages (queries[i], &messages) != NOTMUCH_STATUS_SUCCESS)
           continue;
@@ -293,7 +295,9 @@ run_queries (notmuch_database_t *db,
           continue;
 #endif
 
-      for (; notmuch_messages_valid (messages); notmuch_messages_move_to_next (messages)) {
+      const int max_messages_per_query=100;
+      int nb_messages=0;
+      for (; notmuch_messages_valid (messages) && nb_messages < max_messages_per_query; ++nb_messages, notmuch_messages_move_to_next (messages)) {
           notmuch_message_t *msg = notmuch_messages_get (messages);
 
           for (guint j = 0; headers[j] != NULL; j++)
