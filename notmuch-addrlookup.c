@@ -346,6 +346,8 @@ run_queries (notmuch_database_t *db,
                           addr_key = from = NULL;
                         } else if(!strcmp(info->name,"") || (strchr(info->name,'@') && !strchr(name, '@'))) {
                           info->name = name;
+                        } else if(info->name[0]>='a' && info->name[0]<='z' && name[0] >= 'A' && name[0] <= 'Z') {
+                          info->name = name;
                         }
                       info->occurrences[i]++;
 
